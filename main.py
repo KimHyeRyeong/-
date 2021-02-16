@@ -25,6 +25,7 @@ app = FastAPI()
 
 image_table_1.query.delete()
 
+#DB에 이미지 삽입
 db_session.add_all([
     image_table_1('2021-02-07', '20210207_000029_SDO_AIA_304_512.jpg'),
     image_table_1('2021-02-08', '20210208_000029_SDO_AIA_304_512.jpg'),
@@ -59,27 +60,38 @@ db_session.add_all([
 
 db_session.commit()
 
+def image_processing(from_value,date_value, table, first_path):
+    dt = db_session.query(table).filter(table.datetime == date_value).first()
+    file_path = first_path + dt.image
+
+
+    img = Image.open(file_path)
+    img = img.resize((210,210))
+
+    fontsFolder = "C:\\Users\\user\\Desktop\\Pythonworkspace\\2020 winter"
+    selectFont = ImageFont.truetype(os.path.join(fontsFolder,'NanumBarunGothic.ttf'), 18)
+    draw = ImageDraw.Draw(img)
+
+    temp = from_value
+    draw.text((12,10), temp, fill="white", font=selectFont, align='center')
+    save_path = first_path + 'new_file.jpg'
+    img.save(save_path)
+
+def no_data_html():
+    html_content = """
+        <body>
+        <center>
+        <h3 style ="color: yellow;">no data</h3>
+        </body>
+    """
+    return HTMLResponse(content=html_content, status_code = 200)
 
 @app.get("/AIA", response_class=HTMLResponse)
 async def read_AIA(from_value: str):
 
     date_value = from_value[0:10]
     if db_session.query(image_table_1).filter(image_table_1.datetime == date_value).first() != None :
-        dt = db_session.query(image_table_1).filter(image_table_1.datetime == date_value).first()
-        file_path = "AIA\\" + dt.image
-
-
-        img = Image.open(file_path)
-        img = img.resize((210,210))
-
-        fontsFolder = "C:\\Users\\user\\Desktop\\Pythonworkspace\\2020 winter"
-        selectFont = ImageFont.truetype(os.path.join(fontsFolder,'NanumBarunGothic.ttf'), 18)
-        draw = ImageDraw.Draw(img)
-
-        temp = from_value
-        draw.text((12,10), temp, fill="white", font=selectFont, align='center')
-        img.save('AIA\\new_file.jpg')
-
+        image_processing(from_value, date_value, image_table_1, "AIA\\")
         return generate_html()
 
     else :
@@ -96,25 +108,6 @@ def generate_html():
     return HTMLResponse(content=html_content, status_code = 200)
 
 
-def no_data_html():
-    html_content = """
-        <body>
-        <center>
-        <h3 style ="color: yellow;">no data</h3>
-        </body>
-    """
-    return HTMLResponse(content=html_content, status_code = 200)
-
-# @app.get("/img2")
-# def read_item2(from_value: str):
-#     if db_session.query(image_table_1).filter(image_table_1.datetime == from_value).first() != None :
-#         dt = db_session.query(image_table_1).filter(image_table_1.datetime == from_value).first()
-#         return {"value:":from_value}
-#         # return RedirectResponse(dt.image) #이미지로 리턴
-#     else :
-#         return {"value" : "no data"}
-
-
 
 
 
@@ -123,20 +116,7 @@ async def read_C2(from_value: str):
 
     date_value = from_value[0:10]
     if db_session.query(image_table_2).filter(image_table_2.datetime == date_value).first() != None :
-        dt = db_session.query(image_table_2).filter(image_table_2.datetime == date_value).first()
-        file_path = "C2\\" + dt.image
-
-
-        img = Image.open(file_path)
-        img = img.resize((210,210))
-
-        fontsFolder = "C:\\Users\\user\\Desktop\\Pythonworkspace\\2020 winter"
-        selectFont = ImageFont.truetype(os.path.join(fontsFolder,'NanumBarunGothic.ttf'), 18)
-        draw = ImageDraw.Draw(img)
-
-        temp = from_value
-        draw.text((12,10), temp, fill="white", font=selectFont, align='center')
-        img.save('C2\\new_file.jpg')
+        image_processing(from_value, date_value, image_table_2, "C2\\")
 
         return generate_html_C2()
 
@@ -159,20 +139,7 @@ async def read_C3(from_value: str):
 
     date_value = from_value[0:10]
     if db_session.query(image_table_3).filter(image_table_3.datetime == date_value).first() != None :
-        dt = db_session.query(image_table_3).filter(image_table_3.datetime == date_value).first()
-        file_path = "C3\\" + dt.image
-
-
-        img = Image.open(file_path)
-        img = img.resize((210,210))
-
-        fontsFolder = "C:\\Users\\user\\Desktop\\Pythonworkspace\\2020 winter"
-        selectFont = ImageFont.truetype(os.path.join(fontsFolder,'NanumBarunGothic.ttf'), 18)
-        draw = ImageDraw.Draw(img)
-
-        temp = from_value
-        draw.text((12,10), temp, fill="white", font=selectFont, align='center')
-        img.save('C3\\new_file.jpg')
+        image_processing(from_value, date_value, image_table_3, "C3\\")
 
         return generate_html_C3()
 
